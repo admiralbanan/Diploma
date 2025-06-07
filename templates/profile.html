@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<h2>Профиль {{ user.username }}</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label>О себе:</label>
+        <textarea name="bio" class="form-control">{{ profile.bio }}</textarea>
+    </div>
+
+    <div class="mb-3">
+        <label>Аватар:</label>
+        {% if profile.avatar %}
+            <img src="{{ profile.avatar.url }}" width="150" class="img-thumbnail mb-2">
+        {% endif %}
+        <input type="file" name="avatar" class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+</form>
+
+<h3 class="mt-4">Ваши книги</h3>
+<ul class="list-group">
+    {% for book in user_books %}
+        <li class="list-group-item">
+            {{ book.title }} — {{ book.created_at|date:"d.m.Y H:i" }}
+        </li>
+    {% empty %}
+        <li class="list-group-item">Вы пока не добавляли книг.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

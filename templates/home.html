@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Каталог книг{% endblock %}
+
+{% block content %}
+<h2>Каталог книг</h2>
+
+{% if query %}
+    <h5>Результаты поиска по запросу: "{{ query }}"</h5>
+{% endif %}
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for book in books %}
+        <div class="col">
+            <div class="book-card">
+                {% if book.cover %}
+                    <a href="{% url 'book_detail' book.id %}">
+                        <img src="{{ book.cover.url }}" class="img-fluid cover-img" alt="Обложка">
+                    </a>
+                {% endif %}
+                <h5 class="mt-2">
+                    <a href="{% url 'book_detail' book.id %}" class="text-decoration-none">{{ book.title }}</a>
+                </h5>
+                <p>{{ book.author }} ({{ book.year }})</p>
+                <p><strong>Жанр:</strong> {{ book.genre }}</p>
+                <a href="{{ book.file.url }}" class="btn btn-primary" download>Скачать книгу</a>
+            </div>
+        </div>
+    {% empty %}
+        <p>Пока нет книг в каталоге.</p>
+    {% endfor %}
+</div>
+{% endblock %}

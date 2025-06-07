@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Библиотека{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 70px;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .book-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+        .cover-img {
+            max-height: 300px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}">Библиотека</a>
+        <div class="collapse navbar-collapse d-flex justify-content-between align-items-center">
+            
+            <!-- Левое меню -->
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'add_book' %}">Добавить книгу</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Профиль</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Вход</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Регистрация</a></li>
+                {% endif %}
+            </ul>
+
+            <!-- Правое меню: поиск + выход -->
+            <div class="d-flex align-items-center">
+                <form class="d-flex me-3" method="get" action="{% url 'search' %}">
+                    <input class="form-control me-2" type="search" name="q" placeholder="Поиск книг..." aria-label="Поиск">
+                    <button class="btn btn-outline-light" type="submit">Поиск</button>
+                </form>
+
+                {% if user.is_authenticated %}
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-light">Выход ({{ user.username }})</button>
+                    </form>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <!-- Левая колонка с жанрами -->
+        <div class="col-md-3">
+            <h4>Жанры</h4>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="{% url 'home' %}">Все жанры</a>
+                </li>
+                {% for genre in genres %}
+                    <li class="list-group-item">
+                        <a href="{% url 'genre_books' genre.id %}">{{ genre.name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Правая колонка с основным контентом -->
+        <div class="col-md-9">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

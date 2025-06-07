@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ book.title }}{% endblock %}
+
+{% block content %}
+<div class="card mb-3">
+    {% if book.cover %}
+        <img src="{{ book.cover.url }}" class="card-img-top" style="max-height: 400px; object-fit: cover;" alt="Обложка">
+    {% endif %}
+    <div class="card-body">
+        <h3 class="card-title">{{ book.title }}</h3>
+        <p class="card-text"><strong>Автор:</strong> {{ book.author }}</p>
+        <p class="card-text"><strong>Год:</strong> {{ book.year }}</p>
+        <p class="card-text"><strong>Жанр:</strong> {{ book.genre }}</p>
+        <p class="card-text"><strong>Описание:</strong> {{ book.description }}</p>
+        <a href="{{ book.file.url }}" class="btn btn-primary" download>Скачать книгу</a>
+    </div>
+</div>
+{% endblock %}
