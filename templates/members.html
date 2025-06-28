@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Участники{% endblock %}
+
+{% block content %}
+<h2>Участники</h2>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Пользователь</th>
+      <th>Дата регистрации</th>
+      <th>Добавленные книги</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in members %}
+    <tr>
+      <td>
+        <a href="{% url 'other_profile' user.id %}">{{ user.username }}</a>
+      </td>
+      <td>{{ user.date_joined|date:"d.m.Y" }}</td>
+      <td>{{ user.book_count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

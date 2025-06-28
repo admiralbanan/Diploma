@@ -3,17 +3,91 @@
 {% block title %}{{ book.title }}{% endblock %}
 
 {% block content %}
-<div class="card mb-3">
-    {% if book.cover %}
-        <img src="{{ book.cover.url }}" class="card-img-top" style="max-height: 400px; object-fit: cover;" alt="Обложка">
-    {% endif %}
-    <div class="card-body">
-        <h3 class="card-title">{{ book.title }}</h3>
-        <p class="card-text"><strong>Автор:</strong> {{ book.author }}</p>
-        <p class="card-text"><strong>Год:</strong> {{ book.year }}</p>
-        <p class="card-text"><strong>Жанр:</strong> {{ book.genre }}</p>
-        <p class="card-text"><strong>Описание:</strong> {{ book.description }}</p>
-        <a href="{{ book.file.url }}" class="btn btn-primary" download>Скачать книгу</a>
+<h2>{{ book.title }}</h2>
+<p><strong>Автор:</strong> {{ book.author }}</p>
+<p><strong>Год:</strong> {{ book.year }}</p>
+<p><strong>Жанр:</strong> {{ book.genre }}</p>
+<p>{{ book.description }}</p>
+
+{% if book.cover %}
+<img src="{{ book.cover.url }}" class="img-fluid cover-img mb-3" alt="Обложка">
+{% endif %}
+
+<a href="{{ book.file.url }}" class="btn btn-primary mb-3" download>Скачать книгу</a>
+
+<hr>
+<h4>Отзывы</h4>
+
+{% for review in reviews %}
+<div class="border p-2 mb-3">
+  <p><strong>{{ review.user.username }}</strong> ({{ review.created_at|date:"d.m.Y H:i" }})</p>
+
+  <p>
+    {% for _ in review.star_range %}
+      ⭐
+    {% endfor %}
+    {% for _ in review.empty_star_range %}
+      ☆
+    {% endfor %}
+  </p>
+
+  <p>{{ review.text }}</p>
+
+  <p>
+    👍 Полезно: {{ review.likes_count }} |
+    👎 Не полезно: {{ review.dislikes_count }}
+  </p>
+
+  {% if user.is_authenticated %}
+  <form method="post" class="d-inline">
+    {% csrf_token %}
+    <input type="hidden" name="review_id" value="{{ review.id }}">
+    <button type="submit" name="like" class="btn btn-sm btn-outline-success">👍 Полезно</button>
+    <button type="submit" name="dislike" class="btn btn-sm btn-outline-danger">👎 Не полезно</button>
+  </form>
+
+  <form method="post" class="mt-2">
+    {% csrf_token %}
+    <input type="hidden" name="review_id" value="{{ review.id }}">
+    <textarea name="comment_text" class="form-control mb-1" placeholder="Ваш комментарий"></textarea>
+    <button type="submit" class="btn btn-sm btn-secondary">Добавить комментарий</button>
+  </form>
+  {% endif %}
+
+  <div class="mt-2 ps-2 border-start">
+    {% for comment in review.comments.all %}
+    <div class="bg-light p-1 mb-1">
+      <strong>{{ comment.user.username }}</strong>: {{ comment.text }}
+      <small class="text-muted">({{ comment.created_at|date:"d.m.Y H:i" }})</small>
     </div>
+    {% empty %}
+    <p class="text-muted">Комментариев пока нет.</p>
+    {% endfor %}
+  </div>
 </div>
+{% empty %}
+<p>Пока нет отзывов.</p>
+{% endfor %}
+
+{% if user.is_authenticated %}
+<hr>
+<h5>Оставить отзыв</h5>
+<form method="post">
+  {% csrf_token %}
+  <div class="mb-2">
+    <textarea name="review_text" class="form-control" placeholder="Ваш отзыв"></textarea>
+  </div>
+  <div class="mb-2">
+    <select name="stars" class="form-select">
+      <option value="0">Оценка (звёзды)</option>
+      {% for i in "12345"|make_list %}
+      <option value="{{ i }}">{{ i }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit" class="btn btn-success">Оставить отзыв</button>
+</form>
+{% else %}
+<p>Чтобы оставить отзыв, <a href="{% url 'login' %}">войдите</a> на сайт.</p>
+{% endif %}
 {% endblock %}

@@ -1,15 +1,51 @@
 {% extends 'base.html' %}
 
-{% block title %}Добавление книги{% endblock %}
+{% block title %}Добавить книгу{% endblock %}
 
 {% block content %}
-<h2>Добавить новую книгу</h2>
+<h2>Добавить книгу</h2>
 
-<form method="post" enctype="multipart/form-data">
+<div class="card p-3">
+  <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Сохранить</button>
-</form>
 
-<p><a href="{% url 'home' %}">Вернуться на главную</a></p>
+    <div class="mb-3">
+      <label for="id_title" class="form-label">Название книги</label>
+      {{ form.title }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_author" class="form-label">Автор</label>
+      {{ form.author }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_year" class="form-label">Год выпуска</label>
+      {{ form.year }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_description" class="form-label">Описание</label>
+      {{ form.description }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_genre" class="form-label">Жанр</label>
+      {{ form.genre }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_cover" class="form-label">Обложка</label>
+      {{ form.cover }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_file" class="form-label">Файл книги</label>
+      {{ form.file }}
+    </div>
+
+    <button type="submit" class="btn btn-success">Сохранить</button>
+    <a href="{% url 'home' %}" class="btn btn-secondary">Вернуться на главную</a>
+  </form>
+</div>
 {% endblock %}

@@ -3,31 +3,122 @@
 {% block title %}Каталог книг{% endblock %}
 
 {% block content %}
-<h2>Каталог книг</h2>
+<div class="row">
+  <div class="col-md-9">
+    <h2>Каталог книг</h2>
+    <p>Найдено книг: {{ books_count }}</p>
 
-{% if query %}
-    <h5>Результаты поиска по запросу: "{{ query }}"</h5>
-{% endif %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      {% for book in books %}
+      <div class="col">
+        <div class="book-card">
+          {% if book.cover %}
+          <a href="{% url 'book_detail' book.id %}">
+            <img src="{{ book.cover.url }}" class="img-fluid cover-img" alt="Обложка">
+          </a>
+          {% endif %}
+          <h5 class="mt-2">
+            <a href="{% url 'book_detail' book.id %}" class="text-decoration-none">{{ book.title }}</a>
+          </h5>
+          <p>{{ book.author }} ({{ book.year }})</p>
+          <p><strong>Жанр:</strong> {{ book.genre }}</p>
+          <p>
+            <strong>Добавил:</strong>
+            <a href="{% url 'other_profile' book.added_by.id %}">
+              {{ book.added_by.username }}
+            </a>
+          </p>
+          <a href="{{ book.file.url }}" class="btn btn-primary" download>Скачать книгу</a>
 
-<div class="row row-cols-1 row-cols-md-3 g-4">
-    {% for book in books %}
-        <div class="col">
-            <div class="book-card">
-                {% if book.cover %}
-                    <a href="{% url 'book_detail' book.id %}">
-                        <img src="{{ book.cover.url }}" class="img-fluid cover-img" alt="Обложка">
-                    </a>
-                {% endif %}
-                <h5 class="mt-2">
-                    <a href="{% url 'book_detail' book.id %}" class="text-decoration-none">{{ book.title }}</a>
-                </h5>
-                <p>{{ book.author }} ({{ book.year }})</p>
-                <p><strong>Жанр:</strong> {{ book.genre }}</p>
-                <a href="{{ book.file.url }}" class="btn btn-primary" download>Скачать книгу</a>
-            </div>
+          {% if user.is_authenticated %}
+            {% if book.is_favorited %}
+              <a href="{% url 'remove_favorite' book.id %}" class="btn btn-warning mt-1">Убрать из избранного</a>
+            {% else %}
+              <a href="{% url 'add_favorite' book.id %}" class="btn btn-outline-warning mt-1">В избранное</a>
+            {% endif %}
+          {% endif %}
         </div>
-    {% empty %}
-        <p>Пока нет книг в каталоге.</p>
-    {% endfor %}
+      </div>
+      {% empty %}
+      <p>Пока нет книг в каталоге.</p>
+      {% endfor %}
+    </div>
+
+    <nav aria-label="Навигация по страницам" class="mt-4">
+      <ul class="pagination justify-content-center">
+        {% if books.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ books.previous_page_number }}">Предыдущая</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Предыдущая</span></li>
+        {% endif %}
+
+        <li class="page-item disabled">
+          <span class="page-link">Страница {{ books.number }} из {{ books.paginator.num_pages }}</span>
+        </li>
+
+        {% if books.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ books.next_page_number }}">Следующая</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Следующая</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">Фильтр книг</h5>
+        <form method="get" action="{% url 'home' %}">
+          <div class="mb-2">
+            <input type="text" class="form-control" name="title" placeholder="Название" value="{{ request.GET.title }}">
+          </div>
+          <div class="mb-2">
+            <input type="text" class="form-control" name="author" placeholder="Автор" value="{{ request.GET.author }}">
+          </div>
+          <div class="mb-2">
+            <select class="form-select" name="genre">
+              <option value="">Жанр</option>
+              {% for genre in genres %}
+              <option value="{{ genre.id }}" {% if request.GET.genre == genre.id|stringformat:"s" %}selected{% endif %}>{{ genre.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="row mb-2">
+            <div class="col">
+              <input type="number" class="form-control" name="year_from" placeholder="Год с" value="{{ request.GET.year_from }}">
+            </div>
+            <div class="col">
+              <input type="number" class="form-control" name="year_to" placeholder="Год по" value="{{ request.GET.year_to }}">
+            </div>
+          </div>
+          <div class="mb-2">
+            <select class="form-select" name="sort">
+              <option value="">Сортировка</option>
+              <option value="year" {% if request.GET.sort == 'year' %}selected{% endif %}>Год</option>
+              <option value="created_at" {% if request.GET.sort == 'created_at' %}selected{% endif %}>Дата добавления</option>
+              <option value="title" {% if request.GET.sort == 'title' %}selected{% endif %}>Название</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <select class="form-select" name="date_filter">
+              <option value="">За всё время</option>
+              <option value="7" {% if request.GET.date_filter == '7' %}selected{% endif %}>За последние 7 дней</option>
+              <option value="30" {% if request.GET.date_filter == '30' %}selected{% endif %}>За последние 30 дней</option>
+              <option value="90" {% if request.GET.date_filter == '90' %}selected{% endif %}>За последние 90 дней</option>
+            </select>
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">Применить</button>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Сбросить</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

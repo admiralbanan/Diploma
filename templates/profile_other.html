@@ -1,0 +1,43 @@
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Профиль {{ other_user.username }}{% endblock %}
+
+{% block content %}
+<h2>Профиль {{ other_user.username }}</h2>
+
+<div class="card mb-3" style="max-width: 540px;">
+  <div class="row g-0">
+    <div class="col-md-4">
+      {% if other_user.profile.avatar %}
+      <img src="{{ other_user.profile.avatar.url }}" class="img-fluid rounded-start" alt="Аватар">
+      {% else %}
+      <img src="{% static 'img/default-avatar.png' %}" class="img-fluid rounded-start" alt="Аватар">
+      {% endif %}
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h5 class="card-title">{{ other_user.username }}</h5>
+        <p class="card-text"><strong>Зарегистрирован:</strong> {{ other_user.date_joined|date:"d.m.Y" }}</p>
+        <p class="card-text"><strong>О себе:</strong> {{ other_user.profile.bio|default:"Не указано" }}</p>
+        <p class="card-text"><strong>Добавленные книги:</strong> {{ books.count }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h4>Книги пользователя</h4>
+{% if books %}
+<ul class="list-group">
+  {% for book in books %}
+  <li class="list-group-item">
+    <a href="{% url 'book_detail' book.id %}">{{ book.title }}</a> ({{ book.created_at|date:"d.m.Y" }})
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>Книг пока нет.</p>
+{% endif %}
+
+{% endblock %}

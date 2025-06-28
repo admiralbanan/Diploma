@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои закладки{% endblock %}
+
+{% block content %}
+<h2>Мои закладки</h2>
+
+{% if favorites %}
+<div class="row row-cols-1 row-cols-md-3 g-4">
+  {% for fav in favorites %}
+  <div class="col">
+    <div class="book-card">
+      {% if fav.book.cover %}
+      <a href="{% url 'book_detail' fav.book.id %}">
+        <img src="{{ fav.book.cover.url }}" class="img-fluid cover-img" alt="Обложка">
+      </a>
+      {% endif %}
+      <h5 class="mt-2">
+        <a href="{% url 'book_detail' fav.book.id %}" class="text-decoration-none">{{ fav.book.title }}</a>
+      </h5>
+      <p>{{ fav.book.author }} ({{ fav.book.year }})</p>
+      <p><strong>Жанр:</strong> {{ fav.book.genre }}</p>
+      <a href="{{ fav.book.file.url }}" class="btn btn-primary" download>Скачать</a>
+      <a href="{% url 'remove_favorite' fav.book.id %}" class="btn btn-warning mt-1">Убрать из избранного</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p>У вас нет закладок.</p>
+{% endif %}
+{% endblock %}

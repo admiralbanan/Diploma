@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-dne&$w%i^n5n3lj2oldmw7ml3lz4$&j!&&6*7%-vq@vqnf4!_^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['194.87.99.109']
+ALLOWED_HOSTS = ['194.87.99.109', '127.0.0.1']
 
 
 
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'books'
 ]
 
@@ -134,3 +135,9 @@ STATIC_URL = '/static/'
 
 import os
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 5,  # Например, по 5 книг на страницу
+}
